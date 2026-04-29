@@ -30,7 +30,8 @@ const RevenueTrendChart: React.FC = () => (
           tickLine={false}
           tickFormatter={(v) => `£${v >= 1000 ? Math.round(v / 1000) + "k" : v}`}
         />
-        <Tooltip formatter={(v: number) => [`£${v.toLocaleString()}`, "Revenue"]} />
+        {/* <Tooltip formatter={(v: number) => [`£${v.toLocaleString()}`, "Revenue"]} /> */}
+        <Tooltip  />
         <Area
           type="monotone"
           dataKey="revenue"
