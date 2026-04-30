@@ -6,15 +6,16 @@ import Login from "../auth/Login";
 import NewPassword from "../auth/NewPassword";
 import OTPVerifyPage from "../auth/OTPVerifyPage";
 import AdminManage from "../dashboard/Admin/Admins";
-import Bookings from "../dashboard/Booking/Bookings";
-import AllCars from "../dashboard/Cars/AllCars";
 import Dashboard from "../dashboard/Dashboard/Dashboard";
-import Hosts from "../dashboard/Hosts/Hosts";
 import Notificatiion from "../dashboard/Notification/Notification";
 import Settings from "../dashboard/Setting/Setting";
 import Users from "../dashboard/Users/Users";
 import Revenue from "../dashboard/Revenue/Revenue";
 import Agents from "../dashboard/Agents/Agents";
+import ListingsManagement from "../dashboard/ListingsManagement/ListingsManagement";
+import EnquiriesPage from "../dashboard/Enquiries/EnquiriesPage";
+import TransactionsPage from "../dashboard/Transactions/TransactionsPage";
+import PushNotificationsPage from "../dashboard/Pushnotifications/Pushnotificationspage";
 
 const router = createBrowserRouter([
     {
@@ -31,15 +32,7 @@ const router = createBrowserRouter([
             {
                 path: "revenues",
                 element: <Revenue />
-            },
-            {
-                path: "cars",
-                element: <AllCars />
-            },
-            {
-                path: "hosts",
-                element: <Hosts />
-            },
+            },            
             {
                 path: "users",
                 element: <Users />
@@ -49,13 +42,25 @@ const router = createBrowserRouter([
                 element: <Agents />
             },
             {
-                path: "admins",
-                element: <AdminManage />
+                path: "listing",
+                element: <ListingsManagement />
             },
             {
-                path: "bookings",
-                element: <Bookings />
+                path: "enquiries",
+                element: <EnquiriesPage />
             },
+            {
+                path: "transactions",
+                element: <TransactionsPage />
+            },
+            {
+                path: "push-notifications",
+                element: <PushNotificationsPage />
+            },
+            {
+                path: "admins",
+                element: <AdminManage />
+            },            
             {
                 path: "setting",
                 element: <Settings />

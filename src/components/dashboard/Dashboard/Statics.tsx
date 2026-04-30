@@ -1,10 +1,10 @@
 
 
 import { useState } from "react";
+import { BsCurrencyDollar } from "react-icons/bs";
 import { FiUsers } from "react-icons/fi";
 import { MdOutlineRealEstateAgent } from "react-icons/md";
-import { BsCurrencyDollar } from "react-icons/bs";
-import { Skeleton } from "../../ui/skeleton";
+import { useGetAnalyticsQuery } from "../../../redux/features/dashboard/dashboardApi";
 import {
   Select,
   SelectContent,
@@ -12,7 +12,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../../ui/select";
-import { useGetAnalyticsQuery } from "../../../redux/features/dashboard/dashboardApi";
 import StatsCard from "./StatsCard";
 
 
@@ -20,7 +19,7 @@ const currentYear = new Date().getFullYear();
 
 const StatsCards = () => {
   const [selectedYear, setSelectedYear] = useState(currentYear.toString());
-  const { data: analyticsData, isLoading } = useGetAnalyticsQuery({ year: selectedYear });
+  const { data: analyticsData } = useGetAnalyticsQuery({ year: selectedYear });
 
   const stats = [
     {
@@ -54,11 +53,11 @@ const StatsCards = () => {
   ];
 
   return (
-    <div className="w-full  py-6">
+    <div className="w-full  ">
       {/* Header */}
       <div className="flex items-start justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Overview</h1>
+          <h1 className="title">Overview</h1>
           <p className="text-sm text-gray-500 mt-0.5">
             Welcome back! Here's what's happening with your platform.
           </p>
@@ -84,7 +83,7 @@ const StatsCards = () => {
 
       {/* Cards Grid */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
-        {isLoading
+        {/* {isLoading
           ? Array.from({ length: 3 }).map((_, i) => (
               <div key={i} className="rounded-2xl bg-gray-50 p-5 flex flex-col gap-4">
                 <div className="flex items-center justify-between">
@@ -98,7 +97,10 @@ const StatsCards = () => {
                 </div>
               </div>
             ))
-          : stats.map((stat, index) => (
+            : stats.map((stat, index) => (
+                <StatsCard key={index} {...stat} />
+              ))} */}
+           { stats.map((stat, index) => (
               <StatsCard key={index} {...stat} />
             ))}
       </div>

@@ -1,0 +1,125 @@
+import React, { useState } from "react";
+
+
+import type { Listing } from "../../../data/listingsData";
+import ListingDetailsModal from "./ListingDetails/ListingDetailsModal";
+import ListingStatusBadge from "./ListingStatusBadge";
+         
+import { Check, Edit, Eye, Trash, X } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { Button } from "../../ui/button";
+
+const HEADERS = ["PROPERTY", "AGENT", "PRICE", "TYPE", "STATS", "STATUS", "ACTIONS"];
+
+interface Props { listings: Listing[] }
+
+const ListingTable: React.FC<Props> = ({ listings }) => {
+    const [selectedListing, setSelectedListing] = useState<any | null>(null);
+    const navigate = useNavigate();
+    return (
+        <div className="bg-white border border-gray-100 rounded-xl overflow-hidden">
+            {listings.length === 0 ? (
+                <p className="text-center py-12 text-gray-400 text-sm">No listings found.</p>
+            ) : (
+                <div className="overflow-x-auto">
+                    <table className="w-full text-sm border-collapse">
+                        <thead>
+                            <tr className="bg-gray-50">
+                                {HEADERS.map(h => (
+                                    <th key={h} className="text-left text-[10.5px] font-semibold text-gray-400 tracking-widest px-4 py-3 border-b border-gray-100 whitespace-nowrap">
+                                        {h}
+                                    </th>
+                                ))}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {listings.map(l =>
+                                <tr className="border-b border-gray-50 hover:bg-gray-50/60 last:border-0">
+                                    <td className="py-3.5 px-4">
+                                        <div className="flex items-center gap-1.5 font-semibold text-[13.5px] text-gray-900 mb-1">
+                                            {l.featured && (
+                                                <svg width="14" height="14" viewBox="0 0 24 24" fill="#f59e0b" stroke="#f59e0b" strokeWidth="1">
+                                                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                                                </svg>
+                                            )}
+                                            {l.title}
+                                        </div>
+                                        <div className="flex items-center gap-1 text-[11.5px] text-gray-400 mb-1">
+                                            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" /><circle cx="12" cy="10" r="3" />
+                                            </svg>
+                                            {l.address}
+                                        </div>
+                                        <p className="text-[11px] text-gray-400">{l.beds} bed • {l.baths} bath • {l.photos} photos</p>
+                                    </td>
+                                    <td className="py-3.5 px-4">
+                                        <p className="text-[13px] font-medium text-gray-900">{l.agent.name}</p>
+                                        <p className="text-[11px] text-gray-400">{l.agency}</p>
+                                    </td>
+                                    <td className="py-3.5 px-4">
+                                        <p className="text-[13.5px] font-semibold text-gray-900">{l.price}</p>
+                                        {l.period && <p className="text-[11px] text-gray-400">{l.period}</p>}
+                                    </td>
+                                    <td className="py-3.5 px-4">
+                                        <p className="text-[13px] text-gray-800">{l.type}</p>
+                                        <p className="text-[11px] text-gray-400">{l.subType}</p>
+                                    </td>
+                                    <td className="py-3.5 px-4">
+                                        <p className="text-[12px] text-gray-500 flex items-center gap-1 mb-1">
+                                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" /><circle cx="12" cy="12" r="3" />
+                                            </svg>
+                                            {l.views} views
+                                        </p>
+                                        <p className="text-[12px] text-gray-500 flex items-center gap-1">
+                                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                                            </svg>
+                                            {l.leads} leads
+                                        </p>
+                                    </td>
+                                    <td className="py-3.5 px-4"><ListingStatusBadge status={l.status} /></td>
+                                    <td className="py-3.5 px-4">
+                                        <div className="flex items-center gap-1.5">
+                                            {/* View */}
+                                            <Button onClick={()=>{setSelectedListing(l); }} variant="ghost" size="icon" className="w-7 h-7 flex items-center justify-center rounded hover:bg-gray-100">
+                                                <Eye size={20} />
+                                            </Button>
+
+                                            {/* Approve / Reject — pending only */}
+                                            {l.status === "pending" && <>
+                                                <Button variant="ghost" size="icon" className="w-7 h-7 flex items-center justify-center rounded hover:bg-gray-100">
+                                                    <Check size={20} />
+                                                </Button>
+                                                <Button variant="ghost" color="destructive" size="icon" className="w-7 h-7 flex items-center justify-center rounded ">
+                                                    <X size={14} />
+                                                </Button>
+                                            </>}
+                                            {/* Edit */}
+                                            <Button variant="ghost" size="icon" className="w-7 h-7 flex items-center justify-center rounded hover:bg-gray-100">
+                                                <Edit size={14} />
+                                            </Button>
+                                            {/* Delete */}
+                                            <Button variant="ghost" size="icon" className="w-7 h-7 flex items-center justify-center rounded hover:bg-gray-100">
+                                                <Trash size={14} />
+                                            </Button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            )}
+                        </tbody>
+                    </table>
+                </div>
+            )}
+
+            <ListingDetailsModal
+                listing={selectedListing}
+                isOpen={!!selectedListing}
+                onClose={() => setSelectedListing(null)}
+                onEdit={(id) => navigate(`/listings/${id}/edit`)}
+            />
+        </div>
+    )
+};
+
+export default ListingTable;

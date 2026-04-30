@@ -119,13 +119,13 @@ const Notification = () => {
 
   return (
     <div>
-      <div className="mx-auto px-4 py-6">
-        <Card className="bg-white shadow-sm border border-gray-200 overflow-hidden">
+      <div className="">
+        <Card className="">
 
           {/* Header */}
           <header className="sticky top-0 bg-white border-b border-gray-200 px-5 py-4 flex items-center justify-between">
             <div>
-              <h3 className="text-lg font-bold text-gray-900">Notifications</h3>
+              <h3 className="title">Notifications</h3>
 
               {unreadCount > 0 ? (
                 <p className="text-sm text-gray-500 mt-0.5">
@@ -151,7 +151,7 @@ const Notification = () => {
           {/* List */}
           <div
             ref={scrollContainerRef}
-            className="divide-y divide-gray-100 min-h-[30vh] max-h-[65vh] overflow-y-auto"
+            className="divide-y divide-gray-100 min-h-[65vh] max-h-[65vh] overflow-y-auto"
           >
             {notifications.length === 0 ? (
               <div className="flex flex-col items-center justify-center p-16 text-center">

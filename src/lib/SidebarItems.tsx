@@ -1,4 +1,4 @@
-import { Calendar, Car, UserCheck, UserStar } from "lucide-react";
+import { Bell, Car, House, UserStar } from "lucide-react";
 import { FaRegCircleUser } from "react-icons/fa6";
 import { IoSettingsOutline } from "react-icons/io5";
 import { RxDashboard } from "react-icons/rx";
@@ -18,33 +18,40 @@ export const sidebarItems = [
     path: "revenues",
     icon: <Car size={20} />,
     public: true
-  },
-  {
-    key: "cars",
-    label: "Fleet",
-    path: "cars",
-    icon: <Car size={20} />,
-    public: true
-  },
-  {
-    key: "hosts",
-    label: "Host",
-    path: "hosts",
-    icon: <UserCheck size={20} />,
-    public: true
-  },
-  {
-    key: "bookings",
-    label: "Booking",
-    path: "bookings",
-    icon: <Calendar size={20} />,
-    public: true
-  },
+  },  
   {
     key: "users",
     label: "User",
     path: "users",
     icon: <FaRegCircleUser size={20} />,
+    public: true
+  },
+  {
+    key: "listings",
+    label: "Listings",
+    path: "listing",
+    icon: <House size={20} />,
+    public: true
+  },
+  {
+    key: "enquiries",
+    label: "Enquiries",
+    path: "enquiries",
+    icon: <Car size={20} />,
+    public: true
+  },
+  {
+    key: "transactions",
+    label: "Transactions",
+    path: "transactions",
+    icon: <Car size={20} />,
+    public: true
+  },
+  {
+    key: "push-notifications",
+    label: "Push Notifications",
+    path: "push-notifications",
+    icon: <Bell size={20} />,
     public: true
   },
   {

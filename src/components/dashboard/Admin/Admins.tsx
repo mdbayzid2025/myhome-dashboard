@@ -1,4 +1,4 @@
-import { Mail, Trash2, UserPlus } from 'lucide-react';
+import { Mail, Pencil, Shield, ShieldCheck, Trash2, UserPlus, Users } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
 import Swal from 'sweetalert2';
@@ -14,7 +14,6 @@ import {
     DialogTitle,
     DialogTrigger,
 } from '../../ui/dialog';
-
 import {
     Table,
     TableBody,
@@ -25,175 +24,300 @@ import {
 } from '../../ui/table';
 import AddAdminForm from './AddAdminForm';
 
+// ─── Stat Card ───────────────────────────────────────────────────────────────
+interface StatCardProps {
+    icon: React.ReactNode;
+    label: string;
+    value: number | string;
+    sub: string;
+    bg: string;       // card background
+    iconBg: string;   // icon wrapper background
+}
 
+function StatCard({ icon, label, value, sub, bg, iconBg }: StatCardProps) {
+    return (
+        <div className={`rounded-xl p-5 flex flex-col gap-6 ${bg}`}>
+            <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${iconBg}`}>
+                {icon}
+            </div>
+            <div>
+                <p className="text-sm text-white/80">{label}</p>
+                <p className="text-4xl font-bold text-white mt-1">{value}</p>
+                <p className="text-xs text-white/60 mt-1">{sub}</p>
+            </div>
+        </div>
+    );
+}
 
+// ─── Avatar ───────────────────────────────────────────────────────────────────
+function AdminAvatar({ name, color }: { name: string; color: string }) {
+    const initials = name.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase();
+    return (
+        <div className={`w-10 h-10 rounded-full flex items-center justify-center text-white text-sm font-semibold shrink-0 ${color}`}>
+            {initials}
+        </div>
+    );
+}
+
+// ─── Role badge ───────────────────────────────────────────────────────────────
+const ROLE_STYLES: Record<string, string> = {
+    'Super Admin': 'bg-purple-100 text-purple-700 border-purple-200',
+    'SUPER_ADMIN': 'bg-purple-100 text-purple-700 border-purple-200',
+    'Admin': 'bg-blue-100 text-blue-700 border-blue-200',
+    'ADMIN': 'bg-blue-100 text-blue-700 border-blue-200',
+    'Moderator': 'bg-emerald-100 text-emerald-700 border-emerald-200',
+    'MODERATOR': 'bg-emerald-100 text-emerald-700 border-emerald-200',
+};
+
+function RoleBadge({ role }: { role: string }) {
+    const cls = ROLE_STYLES[role] ?? 'bg-gray-100 text-gray-700 border-gray-200';
+    return <Badge variant="outline" className={`text-xs font-semibold ${cls}`}>{role}</Badge>;
+}
+
+// ─── Status badge ─────────────────────────────────────────────────────────────
+function StatusBadge({ status }: { status: string }) {
+    const active = status?.toLowerCase() === 'active';
+    return (
+        <Badge
+            variant="outline"
+            className={`text-xs font-medium ${active
+                ? 'bg-green-50 text-green-700 border-green-200'
+                : 'bg-gray-100 text-gray-600 border-gray-200'}`}
+        >
+            {status}
+        </Badge>
+    );
+}
+
+// ─── Permissions cell ─────────────────────────────────────────────────────────
+function PermissionsCell({ permissions }: { permissions?: string[] }) {
+    if (!permissions?.length) return <span className="text-gray-400 text-sm">—</span>;
+    const shown = permissions.slice(0, 2);
+    const extra = permissions.length - 2;
+    return (
+        <div className="flex flex-wrap gap-1">
+            {shown.map((p) => (
+                <Badge key={p} variant="outline" className="text-xs bg-gray-50 text-gray-700 border-gray-200">
+                    {p}
+                </Badge>
+            ))}
+            {extra > 0 && (
+                <Badge variant="outline" className="text-xs bg-gray-50 text-gray-600 border-gray-200">
+                    +{extra} more
+                </Badge>
+            )}
+        </div>
+    );
+}
+
+// ─── Avatar color pool ───────────────────────────────────────────────────────
+const AVATAR_COLORS = [
+    'bg-blue-600', 'bg-teal-600', 'bg-indigo-600',
+    'bg-rose-500', 'bg-amber-500', 'bg-purple-600',
+];
+
+// ─── Main Component ───────────────────────────────────────────────────────────
 export default function AdminManage() {
-
     const [isModalOpen, setIsModalOpen] = useState(false);
 
     const { data: adminsData, refetch } = useGetAdminQuery({});
-    const [addAdmin] = useCreateAdminMutation()
-    const [deleteAdmin] = useDeleteAdminMutation()
+    const [addAdmin] = useCreateAdminMutation();
+    const [deleteAdmin] = useDeleteAdminMutation();
 
-    const getStatusBadge = (status: any) => {
-        const variants = {
-            Active: 'bg-green-100 text-green-800 hover:bg-green-100',
-            Inactive: 'bg-gray-100 text-gray-800 hover:bg-gray-100',
-            Pending: 'bg-yellow-100 text-yellow-800 hover:bg-yellow-100',
-        };
-        return variants[status as keyof typeof variants] || 'bg-gray-100 text-gray-800';
-    };
+    const admins: any[] = adminsData?.data ?? [];
+    const activeCount = admins.filter((a) => a.status?.toLowerCase() === 'active').length;
+    const superCount = admins.filter((a) =>
+        ['Super Admin', 'SUPER_ADMIN'].includes(a.role)
+    ).length;
 
+    // ── Handlers ────────────────────────────────────────────────────────────
     const handleFormSubmit = async (formData: FormData) => {
         const data = Object.fromEntries(formData);
+        const permissions = formData.getAll('permissions') as string[];
 
         const payload = {
             name: data.name,
             email: data.email,
             password: data.password,
-            role: 'ADMIN',
+            role: data.role || 'ADMIN',
+            permissions,
         };
 
         try {
             const response = await addAdmin(payload)?.unwrap();
-
             if (response?.success) {
-                toast?.success(response?.message);
+                toast.success(response?.message);
                 refetch();
                 setIsModalOpen(false);
             }
-
         } catch (error: any) {
-            toast?.error(error?.data?.message);
+            toast.error(error?.data?.message ?? 'Something went wrong!');
             setIsModalOpen(false);
         }
-
     };
 
     const handleAdminDelete = async (adminId: string) => {
         const isConfirmed = await confirmDelete({
-            title: "Delete Admin?",
-            text: "This admin account will be permanently removed.",
+            title: 'Delete Admin?',
+            text: 'This admin account will be permanently removed.',
         });
-
         if (!isConfirmed) return;
 
         try {
-            // 🔴 Call your API here
             await deleteAdmin(adminId);
-
-            Swal.fire({
-                icon: "success",
-                title: "Deleted!",
-                text: "Admin has been deleted successfully.",
-                timer: 1500,
-                showConfirmButton: false,
-            });
-        } catch (error) {
-            Swal.fire({
-                icon: "error",
-                title: "Failed!",
-                text: "Something went wrong while deleting.",
-            });
+            Swal.fire({ icon: 'success', title: 'Deleted!', text: 'Admin deleted successfully.', timer: 1500, showConfirmButton: false });
+            refetch();
+        } catch {
+            Swal.fire({ icon: 'error', title: 'Failed!', text: 'Something went wrong while deleting.' });
         }
     };
+
+    // ── Render ──────────────────────────────────────────────────────────────
     return (
-        <div className="p-5">
-            <Card className="w-full border-none shadow-lg gap-0">
-                <CardHeader className="">
-                    <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                        <div>
-                            <h2 className="text-2xl font-bold text-gray-900">Admin Management</h2>
-                            <p className="text-sm text-gray-600 mt-1">
-                                Manage and monitor administrator accounts
-                            </p>
-                        </div>
-                        <div className="flex items-center gap-3">
-                            <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-                                <DialogTrigger asChild>
-                                    <Button className="bg-purple-600 hover:bg-purple-700">
-                                        <UserPlus className="w-4 h-4 mr-2" />
-                                        Add Admin
-                                    </Button>
-                                </DialogTrigger>
-                                <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-                                    <DialogHeader>
-                                        <DialogTitle className="text-2xl">Add Admin</DialogTitle>
-                                    </DialogHeader>
-                                    <AddAdminForm
-                                        onSubmit={handleFormSubmit}
-                                        onCancel={() => setIsModalOpen(false)}
-                                    />
-                                </DialogContent>
-                            </Dialog>
-                        </div>
-                    </div>
+        <div>
+            {/* Page header */}
+            <div className="flex items-start justify-between mb-6">
+                <div>
+                    <h2 className="text-3xl font-bold text-gray-900">Admin Management</h2>
+                    <p className="text-sm text-blue-500 mt-1">Add and manage administrator accounts and permissions</p>
+                </div>
+
+                <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+                    <DialogTrigger asChild>
+                        <Button className="gap-2 bg-blue-900 hover:bg-blue-800 text-white">
+                            <UserPlus size={16} />
+                            Add New Admin
+                        </Button>
+                    </DialogTrigger>
+                    <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+                        <DialogHeader>
+                            <DialogTitle className="text-2xl font-bold">Add New Administrator</DialogTitle>
+                            <p className="text-sm text-gray-500">Create a new admin account with specific permissions</p>
+                        </DialogHeader>
+                        <AddAdminForm
+                            onSubmit={handleFormSubmit}
+                            onCancel={() => setIsModalOpen(false)}
+                        />
+                    </DialogContent>
+                </Dialog>
+            </div>
+
+            {/* Stat cards */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                <StatCard
+                    icon={<Shield size={22} className="text-white" />}
+                    label="Total Admins"
+                    value={admins.length}
+                    sub="Administrator accounts"
+                    bg="bg-purple-500/70"
+                    iconBg="bg-purple-600"
+                />
+                <StatCard
+                    icon={<ShieldCheck size={22} className="text-white" />}
+                    label="Active Admins"
+                    value={activeCount}
+                    sub="Currently active"
+                    bg="bg-green-600/60"
+                    iconBg="bg-green-500"
+                />
+                <StatCard
+                    icon={<Users size={22} className="text-white" />}
+                    label="Super Admins"
+                    value={superCount}
+                    sub="Full access"
+                    bg="bg-slate-500/70"
+                    iconBg="bg-blue-500"
+                />
+            </div>
+
+            {/* Table card */}
+            <Card className="border-none shadow-sm rounded-xl">
+                <CardHeader className="pb-2">
+                    <h3 className="text-lg font-semibold text-gray-900">All Administrators</h3>
+                    <p className="text-sm text-gray-500">Manage admin accounts and roles</p>
                 </CardHeader>
 
                 <CardContent className="p-0">
-                    <div className=" border overflow-hidden">
-                        <Table>
-                            <TableHeader>
-                                <TableRow className="bg-gray-100">
-                                    <TableHead className="font-semibold text-gray text-gray-600 text-md pl-10">Admin</TableHead>
-                                    <TableHead className="font-semibold text-gray text-gray-600 text-md">Contact</TableHead>
-                                    <TableHead className="font-semibold text-gray text-gray-600 text-md">Role</TableHead>
-                                    <TableHead className="font-semibold text-gray text-gray-600 text-md">Status</TableHead>
-                                    <TableHead className="font-semibold text-gray text-gray-600 text-md text-right pr-10">Actions</TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {adminsData?.data?.length ? adminsData?.data?.map((admin: any, index: number) => (
-                                    <TableRow key={admin.id} className="hover:bg-gray-50" data-aos="fade-up" data-aos-delay={index * 100}>
-                                        <TableCell>
-                                            <div className="flex items-center gap-3 pl-5 py-2">
-                                                <div className="w-10 h-10 rounded-full bg-purple-600 flex items-center justify-center text-white font-semibold">
-                                                    {admin.name
-                                                        .split(' ')
-                                                        .map((n: any) => n[0])
-                                                        .join('')}
-                                                </div>
-                                                <span className="font-medium text-gray-900">{admin.name}</span>
+                    <Table>
+                        <TableHeader>
+                            <TableRow className="text-xs uppercase tracking-wider text-gray-500 bg-gray-50">
+                                <TableHead className="pl-6">Admin</TableHead>
+                                <TableHead>Role</TableHead>
+                                <TableHead>Permissions</TableHead>
+                                <TableHead>Date Added</TableHead>
+                                <TableHead>Last Login</TableHead>
+                                <TableHead>Status</TableHead>
+                                <TableHead className="text-right pr-6">Actions</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {admins.length ? admins.map((admin: any, index: number) => (
+                                <TableRow key={admin.id ?? admin._id} className="hover:bg-gray-50" data-aos="fade-up" data-aos-delay={index * 80}>
+                                    {/* Admin */}
+                                    <TableCell className="pl-6 py-3">
+                                        <div className="flex items-center gap-3">
+                                            <AdminAvatar
+                                                name={admin.name}
+                                                color={AVATAR_COLORS[index % AVATAR_COLORS.length]}
+                                            />
+                                            <div>
+                                                <p className="font-medium text-sm text-gray-900">{admin.name}</p>
+                                                <p className="text-xs text-gray-500 flex items-center gap-1">
+                                                    <Mail size={11} /> {admin.email}
+                                                </p>
                                             </div>
-                                        </TableCell>
-                                        <TableCell>
-                                            <div className="flex items-center gap-2 text-gray-600">
-                                                <Mail size={14} />
-                                                {admin.email}
-                                            </div>
-                                        </TableCell>
-                                        <TableCell>
-                                            <Badge className="bg-purple-100 text-purple-800 hover:bg-purple-100 font-semibold">
-                                                {admin.role}
-                                            </Badge>
-                                        </TableCell>
-                                        <TableCell>
-                                            <Badge className={getStatusBadge(admin.status)}>{admin.status}</Badge>
-                                        </TableCell>
-                                        <TableCell>
-                                            <div className="flex items-center justify-end gap-2 pr-5">
-                                                <Button
-                                                    onClick={() => handleAdminDelete(admin?._id)}
-                                                    size="sm"
-                                                    className="bg-red-600!"
-                                                >
-                                                    <Trash2 size={16} />
-                                                </Button>
-                                            </div>
-                                        </TableCell>
-                                    </TableRow>
-                                )) : <TableRow className="text-center py-12 text-gray-500">
-                                    <TableCell colSpan={5}>
-                                        <p className="text-lg text-center py-10">No admins found matching your search.</p>
+                                        </div>
                                     </TableCell>
-                                </TableRow>}
-                            </TableBody>
-                        </Table>
-                    </div>
 
+                                    {/* Role */}
+                                    <TableCell><RoleBadge role={admin.role} /></TableCell>
+
+                                    {/* Permissions */}
+                                    <TableCell>
+                                        <PermissionsCell permissions={admin.permissions} />
+                                    </TableCell>
+
+                                    {/* Date Added */}
+                                    <TableCell className="text-sm text-gray-600">
+                                        {admin.createdAt ? new Date(admin.createdAt).toISOString().slice(0, 10) : '—'}
+                                    </TableCell>
+
+                                    {/* Last Login */}
+                                    <TableCell className="text-sm text-gray-600">
+                                        {admin.lastLogin ? new Date(admin.lastLogin).toISOString().slice(0, 10) : '—'}
+                                    </TableCell>
+
+                                    {/* Status */}
+                                    <TableCell><StatusBadge status={admin.status ?? 'Active'} /></TableCell>
+
+                                    {/* Actions */}
+                                    <TableCell className="text-right pr-6">
+                                        <div className="flex items-center justify-end gap-2">
+                                            <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-500 hover:text-gray-700">
+                                                <Pencil size={15} />
+                                            </Button>
+                                            <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                className="h-8 w-8 text-red-400 hover:text-red-600"
+                                                onClick={() => handleAdminDelete(admin?._id ?? admin?.id)}
+                                            >
+                                                <Trash2 size={15} />
+                                            </Button>
+                                        </div>
+                                    </TableCell>
+                                </TableRow>
+                            )) : (
+                                <TableRow>
+                                    <TableCell colSpan={7} className="text-center py-12 text-gray-500">
+                                        No administrators found.
+                                    </TableCell>
+                                </TableRow>
+                            )}
+                        </TableBody>
+                    </Table>
                 </CardContent>
             </Card>
         </div>
-
     );
 }

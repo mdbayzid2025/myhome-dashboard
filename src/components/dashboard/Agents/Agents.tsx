@@ -22,7 +22,7 @@ const Agents: React.FC = () => {
     <div className="">
       <div className="flex justify-between items-start mb-6 flex-wrap gap-3">
        <div>
-          <h1 className="text-3xl! font-semibold text-gray-900">Agents</h1>
+          <h1 className="title">Agents</h1>
           <p className="text-sm text-gray-400 mt-0.5">Manage real estate agents and their accounts</p>
         </div>
         <div className="flex gap-2">

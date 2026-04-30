@@ -1,17 +1,15 @@
 // pages/settings/SettingsPage.tsx
-import { DollarSign, FileText, Globe, Shield } from "lucide-react";
+import { FileText, Globe, Shield } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../ui/tabs";
 import AboutUs from "./AboutUs";
-import CommissionManage from "./CommissionManage";
+import ChangePassword from "./ChangePassword";
+import FAQ from "./FAQ";
 import PersonnalInformation from "./PersonnalInformation";
 import PrivacyPolicy from "./PrivacyPolicy";
 import TermsCondition from "./TermsCondition";
-import ChangePassword from "./ChangePassword";
-import FAQ from "./FAQ";
 
 const TABS = [
-    { value: "general", label: "Information", icon: Globe, animate: "fade-up-right", delay: 100 },
-    { value: "pricing", label: "Commission", icon: DollarSign, animate: "fade-up-right", delay: 200 },
+    { value: "general", label: "Information", icon: Globe, animate: "fade-up-right", delay: 100 },    
     { value: "security", label: "Security", icon: Shield, animate: "fade-up-right", delay: 300 },
     { value: "faq", label: "FAQ", icon: FileText, animate: "fade-up-right", delay: 400 },
     { value: "about", label: "About Us", icon: FileText, animate: "fade-up-right", delay: 400 },
@@ -27,12 +25,12 @@ export default function Setting() {
             <Tabs defaultValue="general" className="w-full ">
                 <div className="bg-white rounded-2xl p-4 mb-6 shadow-sm border ">
                     <div>
-                        <h2 className="text-2xl font-bold text-gray-900">Setting</h2>
+                        <h2 className="title">Setting</h2>
                         <p className="text-sm text-gray-600 mt-1">
                             Manage application settings and administrative preferences.
                         </p>
                     </div>
-                    <TabsList className="grid w-full h-16! bg-primary/20 grid-cols-7 gap-3 p-2 mt-5">
+                    <TabsList className="grid w-full h-16! bg-primary/20 grid-cols-6 gap-3 p-2 mt-5">
                         {TABS.map(({ value, label, icon: Icon, animate, delay }) => (
                             <TabsTrigger
                                 key={value}
@@ -58,12 +56,7 @@ export default function Setting() {
 
                 <TabsContent value="general">
                     <PersonnalInformation />
-                </TabsContent>
-
-
-                <TabsContent value="pricing">
-                    <CommissionManage />
-                </TabsContent>
+                </TabsContent>                
 
                 <TabsContent value="security">
                     <ChangePassword />

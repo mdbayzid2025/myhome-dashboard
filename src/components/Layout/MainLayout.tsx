@@ -27,7 +27,7 @@ export default function DashboardLayout() {
 
         <div className="flex flex-col overflow-y-auto!">
           <Navbar />
-          <main className=" w-full px-5">
+          <main className=" w-full px-5 pt-5">
             <Outlet />
           </main>
         </div>

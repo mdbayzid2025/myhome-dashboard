@@ -6,11 +6,11 @@ import RevenueSources from "./RevenueSources";
 import RecentTransactions from "./RecentTransactions";
 
 const RevenueAnalytics: React.FC = () => (
-  <div className="p-6 bg-gray-50 min-h-screen">
+  <div className="">
     {/* Header */}
     <div className="flex items-start justify-between mb-6 flex-wrap gap-3">
       <div>
-        <h1 className="text-2xl font-medium text-gray-900">Revenue Analytics</h1>
+        <h1 className="title">Revenue Analytics</h1>
         <p className="text-sm text-gray-400 mt-0.5">Track and analyze platform revenue performance</p>
       </div>
       <div className="flex gap-2">

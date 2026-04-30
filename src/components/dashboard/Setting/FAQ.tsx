@@ -126,7 +126,7 @@ const FAQ = () => {
   };
 
   return (
-    <Card className="border-none shadow-sm max-w-6xl mx-auto">
+    <Card className="border-none shadow-sm">
       <CardContent className="px-8 pb-8">
         <div className="space-y-6">
 

@@ -3,7 +3,7 @@ import { FileText, Loader2, Save } from "lucide-react";
 
 import { Button } from "../../ui/button";
 import { Card, CardContent } from "../../ui/card";
-import { Textarea } from "../../ui/textarea";
+
 
 import {
   useAddDisclaimerMutation,
@@ -11,6 +11,7 @@ import {
 } from "../../../redux/features/setting/settingApi";
 
 import { toast } from "sonner";
+import JoditEditorComponent from "../../Shared/JoditEditorComponent";
 
 const AboutUs = () => {
   const [content, setContent] = useState("");
@@ -35,14 +36,30 @@ const AboutUs = () => {
       if (response?.success) {
         toast.success(response?.message || "About page updated");
         setIsEditing(false);
+      } else {
+        if (response?.error && Array.isArray(response.error)) {
+          response.error.forEach((err: { message: string }) => {
+            toast.error(err.message, { id: "about-us" });
+          });
+        } else {
+          toast.error(response?.message || "Something went wrong!", {
+            id: "about-us",
+          });
+        }
       }
-    } catch (error: any) {
-      toast.error(error?.data?.message || "Failed to update about page");
+    } catch (err) {
+      console.error("AboutUs error:", err);
+      toast.error("Failed to update about page", { id: "about-us" });
     }
   };
 
+  const handleCancel = () => {
+    if (aboutData?.content) setContent(aboutData.content);
+    setIsEditing(false);
+  };
+
   return (
-    <Card className="border-none shadow-sm max-w-6xl mx-auto">
+    <Card className="border-none shadow-sm ">
       <CardContent className="px-8 pb-8">
         <div className="space-y-6">
 
@@ -61,15 +78,17 @@ const AboutUs = () => {
             )}
           </div>
 
+          {/* Edit Mode */}
           {isEditing ? (
             <>
-              <Textarea
+              <JoditEditorComponent
                 value={content}
-                onChange={(e) => setContent(e.target.value)}
-                className="min-h-[350px] font-mono text-sm"
+                onChange={setContent}
+                placeholder="Write your about us content here..."
+                height={400}
               />
 
-              <div className="flex gap-3">
+              <div className="flex gap-3 pt-2">
                 <Button
                   onClick={handleSave}
                   disabled={isLoading}
@@ -89,7 +108,7 @@ const AboutUs = () => {
                 </Button>
 
                 <Button
-                  onClick={() => setIsEditing(false)}
+                  onClick={handleCancel}
                   variant="outline"
                   disabled={isLoading}
                 >
@@ -98,9 +117,13 @@ const AboutUs = () => {
               </div>
             </>
           ) : (
-            <div className="prose max-w-none whitespace-pre-wrap text-gray-700 leading-relaxed">
-              {content || "No content yet."}
-            </div>
+            /* View Mode */
+            <div
+              className="prose prose-sm max-w-none text-gray-700 leading-relaxed"
+              dangerouslySetInnerHTML={{
+                __html: content || "<p>No content yet.</p>",
+              }}
+            />
           )}
         </div>
       </CardContent>
