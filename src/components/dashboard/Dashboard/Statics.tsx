@@ -53,7 +53,7 @@ const StatsCards = () => {
   ];
 
   return (
-    <div className="w-full  ">
+    <div className="w-full mb-3">
       {/* Header */}
       <div className="flex items-start justify-between mb-6">
         <div>
@@ -83,23 +83,6 @@ const StatsCards = () => {
 
       {/* Cards Grid */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
-        {/* {isLoading
-          ? Array.from({ length: 3 }).map((_, i) => (
-              <div key={i} className="rounded-2xl bg-gray-50 p-5 flex flex-col gap-4">
-                <div className="flex items-center justify-between">
-                  <Skeleton className="h-11 w-11 rounded-xl" />
-                  <Skeleton className="h-4 w-14" />
-                </div>
-                <div>
-                  <Skeleton className="h-3 w-32 mb-2" />
-                  <Skeleton className="h-8 w-24 mb-2" />
-                  <Skeleton className="h-3 w-20" />
-                </div>
-              </div>
-            ))
-            : stats.map((stat, index) => (
-                <StatsCard key={index} {...stat} />
-              ))} */}
            { stats.map((stat, index) => (
               <StatsCard key={index} {...stat} />
             ))}

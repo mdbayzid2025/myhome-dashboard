@@ -4,6 +4,7 @@ import RevenueStatCard from "./RevenueStatCard";
 import RevenueTrendChart from "./RevenueTrendChart";
 import RevenueSources from "./RevenueSources";
 import RecentTransactions from "./RecentTransactions";
+import { Button } from "../../ui/button";
 
 const RevenueAnalytics: React.FC = () => (
   <div className="">
@@ -14,12 +15,12 @@ const RevenueAnalytics: React.FC = () => (
         <p className="text-sm text-gray-400 mt-0.5">Track and analyze platform revenue performance</p>
       </div>
       <div className="flex gap-2">
-        <button className="flex items-center gap-1.5 px-4 py-2 text-sm bg-white border border-gray-200 rounded-lg text-gray-700">
+        <button className="flex items-center gap-1.5  ">
           📅 Last 12 months
         </button>
-        <button className="flex items-center gap-1.5 px-4 py-2 text-sm bg-primary! rounded-lg text-white">
+        <Button variant="outline" className="">
           ⬇ Export Report
-        </button>
+        </Button>
       </div>
     </div>
 
