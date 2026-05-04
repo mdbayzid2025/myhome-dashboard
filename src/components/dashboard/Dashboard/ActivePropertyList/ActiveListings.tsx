@@ -1,11 +1,9 @@
 // components/dashboard/ActiveListings/ActiveListings.tsx
 import { Building2, Eye, ListFilter, MapPin } from "lucide-react";
-import { useMemo, useState } from "react";
-import { Link } from "react-router-dom";
 import { cn } from "../../../../lib/utils";
 import { useGetActiveListingsQuery } from "../../../../redux/features/dashboard/dashboardApi";
+import { Button } from "../../../ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../../../ui/table";
-import ActiveListingsFilter from "./ActivePropertyList";
 // import { useGetActiveListingsQuery } from "../../../redux/features/dashboard/dashboardApi";
 
 // ─── Types ───────────────────────────────────────────────
@@ -37,7 +35,6 @@ const statusConfig: Record<StatusType, string> = {
   Inactive: "bg-gray-100 text-gray-500 border border-gray-200",
 };
 
-const DEFAULT_FILTERS = { engagement: "All", status: "All", location: "All" };
 
 // ─── Fallback Data ────────────────────────────────────────
 const FALLBACK: PropertyListing[] = [
@@ -67,29 +64,8 @@ const Badge = ({ label, className }: { label: string; className: string }) => (
 // ─── Main Component ───────────────────────────────────────
 const ActiveListings = () => {
   const { data, isLoading } = useGetActiveListingsQuery({});
-  const listings: PropertyListing[] = data?.data ?? FALLBACK;
+  const listings: PropertyListing[] = FALLBACK ?? data?.data;    
 
-  const [showFilter, setShowFilter] = useState(false);
-  const [filters, setFilters] = useState(DEFAULT_FILTERS);
-
-  const locations = useMemo(
-    () => [...new Set(listings.map((l) => l.location))],
-    [listings]
-  );
-
-  const filtered = useMemo(() => {
-    return listings.filter((l) => {
-      const byEngagement = filters.engagement === "All" || l.engagement === filters.engagement;
-      const byStatus     = filters.status     === "All" || l.status     === filters.status;
-      const byLocation   = filters.location   === "All" || l.location   === filters.location;
-      return byEngagement && byStatus && byLocation;
-    });
-  }, [listings, filters]);
-
-  const handleFilterChange = (key: keyof typeof filters, value: string) =>
-    setFilters((prev) => ({ ...prev, [key]: value }));
-
-  const handleReset = () => setFilters(DEFAULT_FILTERS);
 
   return (
     <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 my-2">
@@ -100,32 +76,16 @@ const ActiveListings = () => {
           <p className="text-sm text-gray-400 mt-0.5">Recent high-performing properties</p>
         </div>
 
-        <button
-          onClick={() => setShowFilter((p) => !p)}
+        <Button variant="default" size="lg"         
           className={cn(
-            "flex items-center gap-2 px-4 py-2 text-sm font-medium border rounded-xl transition-colors",
-            showFilter
-              ? "bg-primary text-white"
-              : "text-gray-600 border-gray-200 hover:bg-gray-50"
+            "flex items-center gap-2 px-4 py-2 text-sm font-medium  rounded-xl transition-colors "
           )}
         >
           <ListFilter className="w-4 h-4" />
           Filter
-        </button>
+        </Button>
       </div>
-
-      {/* ── Filter Row ── */}
-      {showFilter && (
-        <div className="mb-4 pb-4 border-b border-gray-100">
-          <ActiveListingsFilter
-            filters={filters}
-            locations={locations}
-            onChange={handleFilterChange}
-            onReset={handleReset}
-          />
-        </div>
-      )}
-
+     
       {/* ── Table ── */}
       <Table>
         <TableHeader>
@@ -141,14 +101,14 @@ const ActiveListings = () => {
         <TableBody>
           {isLoading ? (
             Array.from({ length: 4 }).map((_, i) => <SkeletonRow key={i} />)
-          ) : filtered.length === 0 ? (
+          ) : listings.length === 0 ? (
             <TableRow>
               <TableCell colSpan={6} className="text-center py-12 text-gray-400 text-sm">
                 No listings match the selected filters.
               </TableCell>
             </TableRow>
           ) : (
-            filtered.map((listing) => (
+            listings.map((listing) => (
               <TableRow key={listing._id} className="border-b border-gray-50 hover:bg-gray-50/50 transition-colors">
                 {/* Property */}
                 <TableCell className="py-5">
@@ -198,16 +158,6 @@ const ActiveListings = () => {
           )}
         </TableBody>
       </Table>
-
-      {/* ── Footer ── */}
-      <div className="mt-4 pt-3">
-        <Link
-          to="/properties"
-          className="text-sm font-medium text-blue-500 hover:text-blue-600 transition-colors"
-        >
-          View all properties →
-        </Link>
-      </div>
     </div>
   );
 };
