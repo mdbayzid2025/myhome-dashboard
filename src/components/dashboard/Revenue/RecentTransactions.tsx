@@ -1,5 +1,6 @@
 import React from "react";
 import { transactions } from "../../../data/revenueData";
+import { Button } from "../../ui/button";
 
 
 const AgentIcon = () => (
@@ -27,10 +28,10 @@ const RecentTransactions: React.FC = () => (
   <div className="bg-white border border-gray-100 rounded-xl p-5">
     <div className="flex justify-between items-start mb-5">
       <div>
-        <p className="text-[15px] font-medium text-gray-900">Recent Transactions</p>
+        <p className="text-lg font-medium text-gray-900">Recent Transactions</p>
         <p className="text-xs text-gray-400">Latest revenue transactions</p>
       </div>
-      <button className="text-[13px] text-blue-600">View all →</button>
+      <Button variant="ghost" className="text-[13px] ">View all →</Button>
     </div>
 
     <div className="overflow-x-auto">
